@@ -1,0 +1,63 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+const ll N=1e5+1;
+vector<ll>v[N];
+ll subtree[N];
+ll n;
+ll leaf,non_leaf;
+
+ll dfs(ll node, ll par)
+{
+    subtree[node]=1;
+
+    for(auto child : v[node])
+    {
+        if(child!=par && child != leaf)
+        {
+            subtree[node]+=dfs(child,node);
+        }
+    } 
+    return subtree[node];
+}
+ll dfs2(ll node,ll par)
+{
+    for(auto child : v[node])
+    {
+        if(subtree[child]>(n-1)/2 && child!=par) return dfs2(child,node);
+    }
+    return node;
+}
+
+int main()
+{
+    ll t;  cin>>t;
+    while(t--)
+    {
+        for(ll i=1;i<=n;i++)
+        {
+            v[i].clear();
+            subtree[i]=0;
+        }
+         cin>>n;
+
+        for(ll i=1;i<n;i++)
+        {
+            ll a,b;  cin>>a>>b;
+            v[a].push_back(b);
+            v[b].push_back(a);
+        }
+
+        for( ll i=1;i<=n;i++)
+        {
+            if(v[i].size()==1) leaf = i;
+            else non_leaf =i;
+        }
+        
+        ll x = dfs(non_leaf,-1);
+        ll ans =dfs2(non_leaf,-1);
+        cout<<leaf<<" "<<v[leaf][0]<<endl;
+        cout<<leaf<<" "<<ans<<endl;
+    }
+
+}

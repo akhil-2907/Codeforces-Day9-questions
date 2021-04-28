@@ -1,0 +1,105 @@
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+ 
+using namespace __gnu_pbds;
+using namespace std;
+ 
+void setIO(string name = "") {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    cout << setprecision(10) << fixed;
+    if (name.size() == 0)
+        return;
+    FILE *fin = freopen((name + ".in").c_str(), "r", stdin);
+    FILE *fout = freopen((name + ".out").c_str(), "w", stdout);
+}
+ 
+//const int mod = 998244353;
+const int mod = 1e9 + 7;
+ 
+long long pwr(long long a, long long n) {
+    long long ans = 1;
+    while (n) {
+        if (n & 1) ans = (ans * a) % mod;
+        a = (a * a) % mod;
+        n >>= 1;
+    }
+    return ans;
+}
+ 
+void precompute() {
+}
+ 
+vector<int> Centroid(const vector<vector<int>> &g) {
+    int n = g.size();
+    vector<int> centroid;
+    vector<int> sz(n);
+    function<void (int, int)> dfs = [&](int u, int prev) {
+        sz[u] = 1;
+        bool is_centroid = true;
+        for (auto v : g[u]) if (v != prev) {
+            dfs(v, u);
+            sz[u] += sz[v];
+            if (sz[v] > n / 2) is_centroid = false;
+        }
+        if (n - sz[u] > n / 2) is_centroid = false;
+        if (is_centroid) centroid.push_back(u);
+    };
+    dfs(0, -1);
+    return centroid;
+}
+ 
+void solve(int _) {
+    int n, m;
+    cin >> n >> m;
+    vector<vector<int>> g(n);
+    vector<pair<int, int>> edges(m);
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        cin >> u >> v;
+        --v, --u;
+        g[u].push_back(v);
+        g[v].push_back(u);
+        edges[i] = {u, v};
+    }
+    vector<int> col(n, -1);
+    bool works = true;
+    function<void(int, int)> dfs = [&] (int u, int c) {
+        col[u] = c ^ 1;
+        for (auto v : g[u]) {
+            if (~col[v]) {
+                works &= (col[v] != col[u]);
+            } else {
+                dfs(v, c ^ 1);
+            }
+        }
+    };
+    dfs(0, 0);
+    if (!works) {
+        cout << "NO\n";
+    } else {
+        cout << "YES\n";
+        for (auto &[u, v] : edges) {
+            if (col[v]) {
+                cout << 1;
+            } else {
+                cout << 0;
+            }
+        }
+        cout << '\n';
+    }
+}
+ 
+signed main() {
+    setIO();
+    precompute();
+    int t = 1;
+    // cin >> t;
+    for (int _t = 1; _t <= t; _t++) {
+        //cout << "Case #" << _t << ": ";
+        solve(_t);
+    }
+    return 0;
+}

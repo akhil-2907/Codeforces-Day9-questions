@@ -1,0 +1,69 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+const ll N= 1e5+1;
+
+vector<ll>v[N];
+vector<ll>possible(N),local(N);
+ll n;
+ll dfs(ll node, ll par)
+{
+   ll  s =1;
+    vector<ll>sizes;
+
+    for(auto child : v[node])
+    {
+        if(child!=par)
+        {
+           ll temp = dfs(child,node);
+           s+=temp;
+           sizes.push_back(temp);
+        }
+    }
+   if(!sizes.empty())
+   {
+       if(par!=-1)
+       {
+           sizes.push_back(n-s);
+       }
+       for(ll i=0;i<=n;i++) local[i]=0;
+       
+       local[0]=1;
+       for(auto x : sizes)
+       {
+           for(ll i=n-x;i>=0;i--)
+           {
+               if(local[i]==1) 
+               {
+                   local[x+i]=1;
+                   possible[x+i]=1;
+               }
+           }
+       }
+
+   }
+    return s;
+}
+int main()
+{
+    cin>>n;
+
+    for(ll i=1;i<n;i++)
+    {
+        ll a,b;  cin>>a>>b;
+        v[a].push_back(b);
+        v[b].push_back(a);
+    }
+    dfs(1,-1);
+    vector<ll>ans;
+    for( ll i=1;i<=n-2;i++)
+    {
+        if(possible[i]) ans.push_back(i);
+    }
+    cout<<ans.size()<<endl;
+    for(auto i : ans)
+    {
+        cout<<i<<" "<<n-1-i<<endl;
+    }
+
+}
